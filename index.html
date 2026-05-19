@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Судебный Секретариат | Реестр исков</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .status { padding: 5px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
+        /* Цвета статусов */
+        .status-принято { background: #e3f2fd; color: #1976d2; }
+        .status-закрыто { background: #e8f5e9; color: #2e7d32; }
+        .status-слушание { background: #fff3e0; color: #ef6c00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Реестр исковых заявлений штата San Andreas</h1>
+        <p>Данные обновляются в режиме реального времени судебным секретариатом.</p>
+        <table id="courtTable">
+            <thead>
+                <tr>
+                    <th>НОМЕР ИСКОВОГО ЗАЯВЛЕНИЯ</th>
+                    <th>АКТУАЛЬНЫЙ СТАТУС ДЕЛА</th>
+                    <th>ДАТА И ВРЕМЯ СУДЕБНОГО ЗАСЕДАНИЯ</th>
+                    <th>МЕСТО ПРОВЕДЕНИЯ</th>
+                    <th>СВЯЗЬ С СЕКРЕТАРЕМ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Данные из таблицы попадут сюда -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // ВСТАВЬ СВОЮ ССЫЛКУ НА CSV НИЖЕ
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj-yCvwdlIYe7TUFxP_eqmd7EHRfhdswCVbZIIypwcKZ64oQChR__we59wSuLTLWZ3XQMa_yq5h4XY/pubhtml';
+
+        async function loadTable() {
+            const response = await fetch(csvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1); // Пропускаем шапку
+            const tableBody = document.querySelector('#courtTable tbody');
+            
+            tableBody.innerHTML = ''; // Очистка
+
+            rows.forEach(row => {
+                const cols = row.split(',');
+                if (cols.length > 1) {
+                    const tr = document.createElement('tr');
+                    const statusClass = `status-${cols[3].trim().toLowerCase()}`;
+                    tr.innerHTML = `
+                        <td>${cols[0]}</td>
+                        <td>${cols[1]}</td>
+                        <td>${cols[2]}</td>
+                        <td><span class="status ${statusClass}">${cols[3]}</span></td>
+                        <td>${cols[4]}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
+            });
+        }
+
+        loadTable();
+        setInterval(loadTable, 30000); // Обновлять каждые 30 секунд
+    </script>
+</body>
+</html>
