@@ -3,74 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Судебный Секретариат | Реестр исков</title>
+    <title>Судебный Секретариат | Реестр исковых заявлений</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; color: #1a1a1a; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; border-bottom: 4px solid #34495e; padding-bottom: 20px; margin-bottom: 30px; text-transform: uppercase; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 4px solid #34495e; padding-bottom: 20px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
         
-        table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
-        th { background-color: #34495e; color: #fff; padding: 18px; text-align: left; font-size: 14px; text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid #e1e1e1; font-size: 15px; }
-        tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        tr:hover { background-color: #edf2f7; transition: 0.3s; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #34495e; color: #ffffff; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; border: 1px solid #2c3e50; }
+        td { padding: 12px 15px; border: 1px solid #e1e1e1; font-size: 14px; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f4f7; transition: 0.2s; }
 
-        .badge { padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; display: inline-block; text-transform: uppercase; }
+        .badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; display: inline-block; text-align: center; min-width: 110px; text-transform: uppercase; }
         
         /* Цвета статусов */
-        .st-принято { background: #c6f6d5; color: #22543d; }
-        .st-ожидание { background: #feebc8; color: #744210; }
-        .st-отклонено { background: #fed7d7; color: #822727; }
-        .st-в { background: #bee3f8; color: #2a4365; }
-        .st-закрыто { background: #edf2f7; color: #4a5568; }
+        .st-принято { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .st-ожидание { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .st-отклонено { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .st-в { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .st-закрыто { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
 
-        .footer { margin-top: 20px; text-align: right; font-size: 12px; color: #718096; font-style: italic; }
-        .loading { text-align: center; padding: 50px; font-size: 18px; color: #a0aec0; }
+        .footer { margin-top: 20px; text-align: right; font-size: 11px; color: #7f8c8d; font-style: italic; }
+        .loading { text-align: center; padding: 40px; font-size: 18px; color: #95a5a6; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Реестр исковых заявлений штата San Andreas</h1>
-    <div id="loading" class="loading">Синхронизация с базой данных правительства...</div>
+    <div id="loading" class="loading">Подключение к защищенному каналу данных...</div>
     <table id="courtTable" style="display:none;">
         <thead>
             <tr>
                 <th>№ Иска</th>
-                <th>Статус</th>
-                <th>Дата и время</th>
+                <th>Актуальный статус</th>
+                <th>Дата и время заседания</th>
                 <th>Место проведения</th>
-                <th>Связь с секретарем</th>
+[20.05.2026 0:14] ChatGPT | Nano Banana:                 <th>Связь с секретарем</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <!-- Данные загружаются из Google Таблицы -->
+        </tbody>
     </table>
     <div class="footer" id="updateTime"></div>
 </div>
-    const csvUrl = https://docs.google.com/spreadsheets/d/e/2PACX-1vTj-yCvwdlIYe7TUFxP_eqmd7EHRfhdswCVbZIIypwcKZ64oQChR__we59wSuLTLWZ3XQMa_yq5h4XY/pub?output=csv;
 
-    async function updateTable() {
+<script>
+    // Твоя ссылка на CSV
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj-yCvwdlIYe7TUFxP_eqmd7EHRfhdswCVbZIIypwcKZ64oQChR__we59wSuLTLWZ3XQMa_yq5h4XY/pub?output=csv';
+
+    async function refreshData() {
         try {
             const response = await fetch(csvUrl);
-            const data = await response.text();
-            const rows = parseCSV(data);
+            const csvText = await response.text();
+            const rows = parseCSV(csvText);
             
             const tbody = document.querySelector('#courtTable tbody');
             tbody.innerHTML = '';
 
-            // Начинаем со 2-й строки (индекс 1), чтобы пропустить заголовки
+            // Пропускаем первую строку с заголовками (i = 1)
             for (let i = 1; i < rows.length; i++) {
                 const col = rows[i];
-                if (col.length < 2 || col[0].trim() === "") continue;
+                if (!col[0] || col[0].trim() === "") continue;
 
                 const tr = document.createElement('tr');
                 
-                // Логика цвета статуса
-                const statusText = col[1] || "";
-                const firstWord = statusText.trim().toLowerCase();
-                let badgeClass = "st-закрыто";
+                // Логика определения цвета статуса
+                const statusText = col[1] ? col[1].trim() : "НЕ ОПРЕДЕЛЕН";
+                const firstWord = statusText.toLowerCase();
                 
+                let badgeClass = "st-закрыто";
                 if (firstWord.includes("принят")) badgeClass = "st-принято";
                 else if (firstWord.includes("ожид")) badgeClass = "st-ожидание";
                 else if (firstWord.includes("отклон")) badgeClass = "st-отклонено";
@@ -89,17 +93,18 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('courtTable').style.display = 'table';
             document.getElementById('updateTime').innerText = 'Последняя синхронизация: ' + new Date().toLocaleTimeString();
-        } catch (err) {
-            console.error(err);
-            document.getElementById('loading').innerText = 'Ошибка подключения к базе данных.';
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('loading').innerText = 'Ошибка загрузки данных. Проверьте публикацию таблицы.';
         }
     }
 
-    // Функция для правильного чтения CSV (чтобы запятые внутри ячеек не ломали таблицу)
+    // Функция парсинга CSV, которая не боится запятых внутри ячеек
     function parseCSV(str) {
         const arr = [];
         let quote = false;
-        for (let row = col = c = 0; c < str.length; c++) {
+        let row = 0, col = 0;
+        for (let c = 0; c < str.length; c++) {
             let cc = str[c], nc = str[c+1];
             arr[row] = arr[row] || [];
             arr[row][col] = arr[row][col] || '';
@@ -114,11 +119,11 @@
         return arr;
     }
 
-    updateTable();
-    setInterval(updateTable, 30000); // Обновление каждые 30 секунд
+    // Запуск
+    refreshData();
+    // Обновление каждые 30 секунд
+    setInterval(refreshData, 30000);
 </script>
 
 </body>
 </html>
-<script>
-    // ВСТАВЬ СВОЮ ССЫЛКУ НИЖЕ
