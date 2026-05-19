@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Судебный Секретариат | Реестр исковых заявлений</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
         h1 { color: #2c3e50; text-align: center; border-bottom: 4px solid #34495e; padding-bottom: 20px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background-color: #34495e; color: #ffffff; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; border: 1px solid #2c3e50; }
         td { padding: 12px 15px; border: 1px solid #e1e1e1; font-size: 14px; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
         tr:hover { background-color: #f1f4f7; transition: 0.2s; }
 
         .badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; display: inline-block; text-align: center; min-width: 110px; text-transform: uppercase; }
@@ -32,7 +32,7 @@
 
 <div class="container">
     <h1>Реестр исковых заявлений штата San Andreas</h1>
-    <div id="loading" class="loading">Подключение к базе данных правительства...</div>
+    <div id="loading" class="loading">Подключение к защищенному каналу данных...</div>
     <table id="courtTable" style="display:none;">
         <thead>
             <tr>
@@ -40,7 +40,7 @@
                 <th>Актуальный статус</th>
                 <th>Дата и время заседания</th>
                 <th>Место проведения</th>
-<th>Связь с секретарем</th>
+                 <th>Связь с секретарем</th>
             </tr>
         </thead>
         <tbody>
@@ -66,20 +66,19 @@
             // Пропускаем первую строку с заголовками (i = 1)
             for (let i = 1; i < rows.length; i++) {
                 const col = rows[i];
-                // Проверяем, что строка не пустая и содержит хотя бы номер иска
-                if (!col || col.length < 2 || col[0].trim() === "") continue;
+                if (!col[0] || col[0].trim() === "") continue;
 
                 const tr = document.createElement('tr');
                 
-                // Логика определения цвета статуса по первому слову
+                // Логика определения цвета статуса
                 const statusText = col[1] ? col[1].trim() : "НЕ ОПРЕДЕЛЕН";
                 const firstWord = statusText.toLowerCase();
                 
-                let badgeClass = "st-закрыто"; // По умолчанию
+                let badgeClass = "st-закрыто";
                 if (firstWord.includes("принят")) badgeClass = "st-принято";
                 else if (firstWord.includes("ожид")) badgeClass = "st-ожидание";
                 else if (firstWord.includes("отклон")) badgeClass = "st-отклонено";
-                else if (firstWord.includes("в")) badgeClass = "st-в"; // Для статуса "В процессе"
+                else if (firstWord.includes("в")) badgeClass = "st-в";
 
                 tr.innerHTML = `
                     <td><b>${col[0]}</b></td>
@@ -95,59 +94,34 @@
             document.getElementById('courtTable').style.display = 'table';
             document.getElementById('updateTime').innerText = 'Последняя синхронизация: ' + new Date().toLocaleTimeString();
         } catch (error) {
-            console.error('Ошибка при загрузке данных:', error);
-            document.getElementById('loading').innerText = 'Ошибка загрузки данных. Проверьте публикацию таблицы и ссылку.';
+            console.error('Ошибка:', error);
+            document.getElementById('loading').innerText = 'Ошибка загрузки данных. Проверьте публикацию таблицы.';
         }
     }
 
-    // Функция парсинга CSV, которая корректно обрабатывает кавычки и запятые внутри ячеек
+    // Функция парсинга CSV, которая не боится запятых внутри ячеек
     function parseCSV(str) {
-        const rows = [];
-        let currentRow = [];
-        let currentCell = '';
-        let inQuotes = false;
-
-        for (let i = 0; i < str.length; i++) {
-            const char = str[i];
-            const nextChar = str[i + 1];
-
-            if (char === '"') {
-                if (inQuotes && nextChar === '"') { // Экранированная кавычка ""
-                    currentCell += '"';
-                    i++; // Пропускаем следующую кавычку
-                } else {
-                    inQuotes = !inQuotes;
-                }
-            } else if (char === ',' && !inQuotes) {
-                currentRow.push(currentCell.trim());
-                currentCell = '';
-            } else if (char === '\n' && !inQuotes) {
-                currentRow.push(currentCell.trim());
-                rows.push(currentRow);
-                currentRow = [];
-                currentCell = '';
-                // Пропускаем \r если оно есть перед \n
-                if (nextChar === '\r' ) i++; 
-            } else if (char === '\r' && !inQuotes) {
-                currentRow.push(currentCell.trim());
-                rows.push(currentRow);
-                currentRow = [];
-                currentCell = '';
-            } else {
-                currentCell += char;
-            }
+        const arr = [];
+        let quote = false;
+        let row = 0, col = 0;
+        for (let c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+            arr[row][col] += cc;
         }
-        // Добавляем последнюю строку, если она не пустая
-        if (currentCell.trim() !== '' || currentRow.length > 0) {
-            currentRow.push(currentCell.trim());
-            rows.push(currentRow);
-        }
-        return rows;
+        return arr;
     }
 
-    // Первоначальный запуск
+    // Запуск
     refreshData();
-    // Автоматическое обновление каждые 30 секунд
+    // Обновление каждые 30 секунд
     setInterval(refreshData, 30000);
 </script>
 
