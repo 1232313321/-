@@ -5,25 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Судебный Секретариат | Реестр исковых заявлений</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 1300px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
         h1 { color: #2c3e50; text-align: center; border-bottom: 4px solid #34495e; padding-bottom: 20px; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background-color: #34495e; color: #ffffff; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; border: 1px solid #2c3e50; }
         td { padding: 12px 15px; border: 1px solid #e1e1e1; font-size: 14px; }
         tr:nth-child(even) { background-color: #f8f9fa; }
         tr:hover { background-color: #f1f4f7; transition: 0.2s; }
-
         .badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; display: inline-block; text-align: center; min-width: 110px; text-transform: uppercase; }
-        
-        /* Цвета статусов */
         .st-принято { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .st-ожидание { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .st-отклонено { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .st-в { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
         .st-закрыто { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
-
         .footer { margin-top: 20px; text-align: right; font-size: 11px; color: #7f8c8d; font-style: italic; }
         .loading { text-align: center; padding: 40px; font-size: 18px; color: #95a5a6; }
     </style>
@@ -38,21 +33,18 @@
             <tr>
                 <th>№ Иска</th>
                 <th>Актуальный статус</th>
-                <th>Дата</th>
-                <th>Время</th>
+                <th>Дата заседания</th>
+                <th>Время заседания</th>
                 <th>Место проведения</th>
                 <th>Связь с секретарем</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Данные загружаются автоматически -->
-        </tbody>
+        <tbody></tbody>
     </table>
     <div class="footer" id="updateTime"></div>
 </div>
 
 <script>
-    // Ссылка на твою таблицу (CSV)
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRXg5KLTJiz2ykXL-U1yQULq_76leC--QRDxigcH_logpgrmQta1ZjH5Gm6ka_J6SJZU_vEldBIraxe/pub?output=csv';
 
     async function refreshData() {
@@ -60,20 +52,14 @@
             const response = await fetch(csvUrl);
             const csvText = await response.text();
             const rows = parseCSV(csvText);
-            
             const tbody = document.querySelector('#courtTable tbody');
             tbody.innerHTML = '';
 
-            // Пропускаем первую строку с заголовками (i = 1)
             for (let i = 1; i < rows.length; i++) {
                 const col = rows[i];
-                
-                // Проверка на пустую строку
                 if (!col || col.length < 2 || !col[0] || col[0].trim() === "") continue;
 
                 const tr = document.createElement('tr');
-                
-                // Логика определения цвета статуса (Колонка B - индекс 1)
                 const statusText = col[1] ? col[1].trim() : "НЕ ОПРЕДЕЛЕН";
                 const firstWord = statusText.toLowerCase();
                 
@@ -83,14 +69,14 @@
                 else if (firstWord.includes("отклон")) badgeClass = "st-отклонено";
                 else if (firstWord.includes("в")) badgeClass = "st-в";
 
-                tr.innerHTML = 
+                tr.innerHTML = `
                     <td><b>${col[0]}</b></td>
                     <td><span class="badge ${badgeClass}">${statusText}</span></td>
                     <td>${col[2] || "—"}</td>
                     <td>${col[3] || "—"}</td>
                     <td>${col[4] || "—"}</td>
                     <td>${col[5] || "—"}</td>
-                ;
+                `;
                 tbody.appendChild(tr);
             }
 
@@ -99,43 +85,34 @@
             document.getElementById('updateTime').innerText = 'Последняя синхронизация: ' + new Date().toLocaleTimeString();
         } catch (error) {
             console.error('Ошибка:', error);
-            document.getElementById('loading').innerText = 'Ошибка загрузки данных. Проверьте публикацию таблицы.';
+            document.getElementById('loading').innerText = 'Ошибка загрузки данных.';
         }
     }
 
-    // Улучшенный парсер CSV для корректной обработки запятых внутри ячеек
     function parseCSV(str) {
         const rows = [];
         let currentRow = [];
         let currentCell = '';
         let inQuotes = false;
-
         for (let i = 0; i < str.length; i++) {
             const char = str[i];
-            const nextChar = str[i + 1];
-
             if (char === '"') {
-                if (inQuotes && nextChar === '"') { 
-                    currentCell += '"';
-                    i++; 
-                } else {
-                    inQuotes = !inQuotes;
-                }
+                if (inQuotes && str[i + 1] === '"') { currentCell += '"'; i++; }
+                else { inQuotes = !inQuotes; }
             } else if (char === ',' && !inQuotes) {
                 currentRow.push(currentCell.trim());
                 currentCell = '';
-            } else if (char === 'n' && !inQuotes) {
-                currentRow.push(currentCell.trim());
-                rows.push(currentRow);
-                currentRow = [];
-                currentCell = '';
-            } else if (char === 'r' && !inQuotes) {
-                // Пропускаем r
-            } else {
-                currentCell += char;
-            }
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                if (currentCell !== '' || currentRow.length > 0) {
+                    currentRow.push(currentCell.trim());
+                    rows.push(currentRow);
+                    currentRow = [];
+                    currentCell = '';
+                }
+                if (char === '\r' && str[i + 1] === '\n') i++;
+            } else { currentCell += char; }
         }
-        if (currentCell.trim() !== '' || currentRow.length > 0) {
+        if (currentCell !== '' || currentRow.length > 0) {
             currentRow.push(currentCell.trim());
             rows.push(currentRow);
         }
@@ -143,24 +120,7 @@
     }
 
     refreshData();
-    // Авто-обновление каждые 30 секунд
     setInterval(refreshData, 30000);
 </script>
-
-</body>
-</html>
-}
-        if (currentCell.trim() !== '' || currentRow.length > 0) {
-            currentRow.push(currentCell.trim());
-            rows.push(currentRow);
-        }
-        return rows;
-    }
-
-    refreshData();
-    // Авто-обновление каждые 30 секунд
-    setInterval(refreshData, 30000);
-</script>
-
 </body>
 </html>
