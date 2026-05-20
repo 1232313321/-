@@ -40,7 +40,7 @@
                 <th>Актуальный статус</th>
                 <th>Дата и время заседания</th>
                 <th>Место проведения</th>
-                 <th>Связь с секретарем</th>
+                <th>Связь с секретарем</th>
             </tr>
         </thead>
         <tbody>
@@ -49,11 +49,9 @@
     </table>
     <div class="footer" id="updateTime"></div>
 </div>
-
 <script>
     // Твоя ссылка на CSV
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTj-yCvwdlIYe7TUFxP_eqmd7EHRfhdswCVbZIIypwcKZ64oQChR__we59wSuLTLWZ3XQMa_yq5h4XY/pub?output=csv';
-
     async function refreshData() {
         try {
             const response = await fetch(csvUrl);
